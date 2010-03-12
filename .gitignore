@@ -1,0 +1,10 @@
+testdata
+plugins
+build
+.settings
+.project
+.cproject
+CMakeLists.txt.user
+doc/api
+*.bak
+*.mwb.beforefix
