@@ -111,7 +111,7 @@ bool ProteinDatabase::addDataSet(ProteinDataSet * data)
     query.exec(QString("INSERT INTO proteinnames (nameType, scope, ref, uniprotid) VALUES (\"%1\", \"%2\", \"%3\", \"%4\");")
         .arg(name->type).arg(name->scope).arg(name->ref).arg(uniprotid));
 
-    int protnameid = query.lastInsertId().toInt();
+    //int protnameid = query.lastInsertId().toInt();
 //    query.exec(QString("INSERT INTO evidencednames (name, evidence, status, protNameId,length) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\");")
 //        .arg(name->name.name).arg(name->fullName.evidence).arg(name->fullName.status).arg(protnameid).arg("full"));
 
@@ -121,9 +121,9 @@ bool ProteinDatabase::addDataSet(ProteinDataSet * data)
   }
   foreach(ProteinDataSet::Feature * feature,data->featureList)
   {
-    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.begin.pos).arg(feature->location.begin.status));
+//    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.begin.pos).arg(feature->location.begin.status));
     int beginid = query.lastInsertId().toInt();
-    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.end.pos).arg(feature->location.end.status));
+//    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.end.pos).arg(feature->location.end.status));
     int endid = query.lastInsertId().toInt();
     query.exec(QString("INSERT INTO features (uniprotId , original ,  type , status , featureId , description , evidence , \"begin\", \"end\") VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\",\"%6\", \"%7\", \"%8\", \"%9\");")
         .arg(uniprotid).arg(feature->original).arg(feature->type).arg(feature->status).arg(feature->id).arg(feature->description).arg(feature->evidence).arg(beginid).arg(endid));

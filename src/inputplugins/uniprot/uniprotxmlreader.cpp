@@ -3,7 +3,6 @@
 #include <QFile>
 #include <QXmlStreamReader>
 
-
 #include "common/exception.h"
 #include <QtDebug>
 
@@ -11,10 +10,10 @@ namespace pepdb
 {
 
 UniprotXmlReader::UniprotXmlReader(const QString & fileName, QObject * parent) :
-  QThread(parent)
+    QThread(parent)
 {
-  _file = new QFile(fileName);
-  _dataList = new ProteinDataSet::ProteinDataList;
+    _file = new QFile(fileName);
+    _dataList = new ProteinDataSet::ProteinDataList;
 }
 
 UniprotXmlReader::~UniprotXmlReader()
@@ -24,28 +23,30 @@ UniprotXmlReader::~UniprotXmlReader()
 
 void UniprotXmlReader::run()
 {
-  readEntries();
+    readEntries();
 }
 
 void UniprotXmlReader::countEntries()
 {
-  _file->open(QFile::ReadOnly);
-  _entryCount = 0;
-  emit progressChanged(0);
-  QXmlStreamReader reader(_file);
-  while (reader.readNextStartElement())
-  {
-    if (reader.name() == "entry")
+    _file->open(QFile::ReadOnly);
+    _entryCount = 0;
+    emit
+    progressChanged(0);
+    QXmlStreamReader reader(_file);
+    while (reader.readNextStartElement())
     {
-      if (++_entryCount % 100 == 0)
-        emit statusChanged(tr("Zähle Einträge: %1").arg(_entryCount));
-      reader.skipCurrentElement();
+        if (reader.name() == "entry")
+        {
+            if (++_entryCount % 100 == 0)
+                emit statusChanged(tr("Zähle Einträge: %1").arg(_entryCount));
+            reader.skipCurrentElement();
+        }
     }
-  }
-  _file->close();
+    _file->close();
 }
 
-QVariant UniprotXmlReader::readAttribute(const QString & attName, AttributeType type )
+QVariant UniprotXmlReader::readAttribute(const QString & attName,
+        AttributeType type)
 {
     QXmlStreamAttributes atts = _reader->attributes();
     if (atts.hasAttribute(attName))
@@ -61,11 +62,21 @@ QVariant UniprotXmlReader::readAttribute(const QString & attName, AttributeType 
             return att.toFloat();
         case Date:
             return QDate::fromString(att, Qt::ISODate);
+        case Bool:
+            return toBool(att);
         default:
             return att;
         }
     }
     return QVariant();
+}
+ProteinDataSet::EvidencedString * UniprotXmlReader::readEvidencedString()
+{
+    ProteinDataSet::EvidencedString * s = new ProteinDataSet::EvidencedString;
+    s->string = _reader->readElementText();
+    s->evidence = readAttribute("evidence").toString();
+    s->status = readAttribute("status").toString();
+    return s;
 }
 
 void UniprotXmlReader::readEntries()
@@ -75,18 +86,19 @@ void UniprotXmlReader::readEntries()
         if (!_file->open(QFile::ReadOnly))
             throw new Exception(tr("Fehler beim Öffnen der Datei"));
         _reader = new QXmlStreamReader(_file);
-        emit statusChanged(tr("Lese Einträge..."));
-        if (! _reader->readNextStartElement() && _reader->name() != "uniprot" )
+        emit
+        statusChanged(tr("Lese Einträge..."));
+        if (!_reader->readNextStartElement() && _reader->name() != "uniprot")
             throw new Exception(tr("Datei konnte nicht gelesen werden"));
         int i = 0;
-        while (_reader->readNextStartElement() && _reader->name() == "entry" )
+        while (_reader->readNextStartElement() && _reader->name() == "entry")
         {
             readEntry();
-            emit statusChanged(tr("%1 Einträge gelesen...").arg(i));
+            emit
+            statusChanged(tr("%1 Einträge gelesen...").arg(i));
             i++;
         }
-    }
-    catch (const Exception * e)
+    } catch (const Exception * e)
     {
         qCritical() << e->message();
     }
@@ -97,219 +109,265 @@ void UniprotXmlReader::readEntry()
 {
     _dataset = new ProteinDataSet;
     _dataset->uniprot.dataset = readAttribute("dataset").toString();
-    _dataset->uniprot.created = readAttribute("created",Date).toDate();
-    _dataset->uniprot.modified = readAttribute("modified",Date).toDate();
-    _dataset->uniprot.version = readAttribute("version",Int).toInt();
+    _dataset->uniprot.created = readAttribute("created", Date).toDate();
+    _dataset->uniprot.modified = readAttribute("modified", Date).toDate();
+    _dataset->uniprot.version = readAttribute("version", Int).toInt();
+    _reader->readNextStartElement();
     readAccessions();
     readNames();
     readProtein();
+    readGenes();
+    readOrganism();
+    readOrganismHosts();
+    readGeneLocations();
+    readReferences();
+    readComments();
+    readDbReferences();
+    readProteinExistence();
+    readKeywords();
+    readFeatures();
+    readEvidences();
+    readSequence();
 
-    while (_reader->readNextStartElement())
-    {
-        if (_reader->name() == "feature")
-            readFeatureEntry(_dataset, _reader);
-        else if (_reader->name() == "sequence")
-            readSequenceEntry(_dataset, _reader);
-        else
-            _reader->skipCurrentElement();
-    }
     _dataList->append(_dataset);
 }
 
 void UniprotXmlReader::readAccessions()
 {
-    int i=0;
-    while (_reader->readNextStartElement() && _reader->name() == "accession")
+    int i = 0;
+    while ( _reader->name() == "accession")
     {
         _dataset->uniprot.accessionList.append(_reader->readElementText());
         i++;
+        _reader->readNextStartElement();
     }
-    if (i<1)
+    if (i < 1)
         throw new Exception(tr("Keine Uniprot-Accession."));
 }
 
 void UniprotXmlReader::readNames()
 {
-    int i=0;
-    while (_reader->readNextStartElement() && _reader->name() == "name")
+    int i = 0;
+    while ( _reader->name() == "name")
     {
         _dataset->uniprot.nameList.append(_reader->readElementText());
         i++;
+        _reader->readNextStartElement();
     }
-    if(i<1)
+    if (i < 1)
         throw new Exception(tr("Kein Uniprot-Name."));
 }
 
 void UniprotXmlReader::readProtein()
 {
-    if (_reader->readNextStartElement() && _reader->name() == "protein")
+    if ( _reader->name() == "protein")
     {
         readProteinNames();
-        while(_reader->readNextStartElement())
-                readProteinNames(_reader->name().toString());
+        _reader->readNextStartElement();
     }
-
-}
-
-    void UniprotXmlReader::readProteinNames(const QString & scope )
-    {
-
-        while (_reader->readNextStartElement())
-        {
-            ProteinDataSet::ProteinName * name = new ProteinDataSet::ProteinName;
-            name->scope = scope;
-            name->ref = readAttribute("ref").toString();
-            name->type = _reader->name().toString();
-            if(_reader->name == "recommandedName" ||
-               _reader->name()== "alternativeName" ||
-               _reader->name() == "submittedName")
-            {
-                ;
-                if (reader->readNextStartElement() && reader->name() == "fullName")
-                    name->fullName = readEvidencedString();
-                while (reader->readNextStartElement() && reader->name() == "shortName")
-                name->shortNameList.append(readEvidencedString());
-            }
-            else
-                name->fullName = readEvidencedString();
-            data->proteinNameList.append(name);
-
-        }
-    }
-
-void UniprotXmlReader::readProteinName(QXmlStreamReader * reader,
-    ProteinDataSet::ProteinName * protName)
-{
-
-  while ()
-  {
-    //qDebug() << reader->name();
-
-        protName->length="full";
-    else if (reader->name() == "shortName")
-      protName->length="short";
     else
-      reader->skipCurrentElement();
-    protName->name = *readEvidencedString(reader);
-  }
+        throw Exception(tr("Keine Proteinnamen"));
 }
 
-ProteinDataSet::EvidencedString * UniprotXmlReader::readEvidencedString(
-    QXmlStreamReader * reader)
+void UniprotXmlReader::readProteinNames(const QString & scope)
 {
-  ProteinDataSet::EvidencedString * s= new ProteinDataSet::EvidencedString();
-  s->string = reader->readElementText();
-  QXmlStreamAttributes att = reader->attributes();
-  if (att.hasAttribute("evidence"))
-    s->evidence = att.value("evidence").toString();
-  if (att.hasAttribute("status"))
-    s->status = att.value("status").toString();
-  return s;
-}
 
-void UniprotXmlReader::readFeatureEntry(ProteinDataSet * data,
-    QXmlStreamReader * reader)
-{
-  ProteinDataSet::Feature * feature =
-      new ProteinDataSet::Feature();
-  QXmlStreamAttributes att = reader->attributes();
-  if (att.hasAttribute("status"))
-    feature->status = att.value("status").toString();
-  if (att.hasAttribute("id"))
-    feature->id = att.value("id").toString();
-  if (att.hasAttribute("description"))
-    feature->description = att.value("description").toString();
-  if (att.hasAttribute("evidence"))
-    feature->evidence = att.value("evidence").toString();
-  if (att.hasAttribute("ref"))
-    feature->ref = att.value("ref").toString();
-  if (att.hasAttribute("type"))
-  {
-    feature->type = att.value("type").toString();
-  };
-  while (reader->readNextStartElement())
-  {
-    //qDebug() << reader->name();
-    if (reader->name() == "original")
-      feature->original = reader->readElementText();
-    else if (reader->name() == "variation")
-      feature->variationList.append((reader->readElementText()));
-    else if (reader->name() == "location")
+    while (_reader->readNextStartElement())
     {
-      QXmlStreamAttributes att = reader->attributes();
-      if (att.hasAttribute("sequence"))
-        feature->location.sequence = att.value("sequence").toString();
-      while (reader->readNextStartElement())
-      {
-        //qDebug() << reader->name();
-        if (reader->name() == "begin")
+        if (_reader->name() == "component" || _reader->name() == "domain")
+            readProteinNames(_reader->name().toString());
+        ProteinDataSet::ProteinName * name = new ProteinDataSet::ProteinName;
+        name->scope = scope;
+        name->ref = readAttribute("ref").toString();
+        name->type = _reader->name().toString();
+        if (_reader->name() == "recommandedName" || _reader->name()
+                == "alternativeName" || _reader->name() == "submittedName")
         {
-          feature->location.begin.pos
-              = reader->attributes().value("position").toString().toInt();
-          feature->location.begin.status
-              = reader->attributes().value("status").toString();
-          reader->skipCurrentElement();
-        }
-        else if (reader->name() == "end")
-        {
-          feature->location.end.pos
-              = reader->attributes().value("position").toString().toInt();
-          feature->location.end.status = reader->attributes().value(
-              "status").toString();
-          reader->skipCurrentElement();
-        }
-        else if (reader->name() == "position")
-        {
-          int
-              pos =
-                  reader->attributes().value("position").toString().toInt();
-          feature->location.begin.pos = pos;
-          feature->location.end.pos = pos;
-          feature->location.begin.status
-              = reader->attributes().value("status").toString();
-          reader->skipCurrentElement();
+            ;
+            if (_reader->readNextStartElement() && _reader->name()
+                    == "fullName")
+                name->fullName = readEvidencedString();
+            while (_reader->readNextStartElement() && _reader->name()
+                    == "shortName")
+                name->shortNameList.append(readEvidencedString());
         }
         else
-          reader->skipCurrentElement();
-      }
+            name->fullName = readEvidencedString();
+        _dataset->proteinNameList.append(name);
+
     }
-    else
-      reader->skipCurrentElement();
-  }
-  data->featureList.append(feature);
 }
 
-void UniprotXmlReader::readSequenceEntry(ProteinDataSet * data,
-    QXmlStreamReader * reader)
+void UniprotXmlReader::readFeatures()
 {
-  QXmlStreamAttributes att = reader->attributes();
-  if (att.hasAttribute("length"))
-    data->sequence.length = att.value("length").toString().toInt();
-  if (att.hasAttribute("mass"))
-    data->sequence.mass = att.value("mass").toString().toInt();
-  if (att.hasAttribute("checksum"))
-    data->sequence.checksum = att.value("checksum").toString();
-  if (att.hasAttribute("modified"))
-    data->sequence.modified = QDate::fromString(att.value("modified").toString(),Qt::ISODate);
-  if (att.hasAttribute("precursor"))
-    data->sequence.precursor = toBool(att.value("precursor").toString());
-  if (att.hasAttribute("version"))
-    data->sequence.version = att.value("version").toString().toInt();
-  if (att.hasAttribute("fragment"))
-    data->sequence.fragment = att.value("fragment").toString();
-  data->sequence.sequence
-      = reader->readElementText().simplified().remove(' ');
+    while (_reader->readNextStartElement() && _reader->name() == "feature")
+    {
+        ProteinDataSet::Feature * feature = new ProteinDataSet::Feature();
+        feature->status = readAttribute("status").toString();
+        feature->id = readAttribute("id").toString();
+        feature->description = readAttribute("description").toString();
+        feature->evidence = readAttribute("evidence").toString();
+        feature->ref = readAttribute("ref").toString();
+        feature->type = readAttribute("type").toString();
+        if (_reader->readNextStartElement() && _reader->name() == "original")
+            feature->original = _reader->readElementText();
+        while (_reader->readNextStartElement() && _reader->name()
+                == "variation")
+            feature->variationList.append((_reader->readElementText()));
+        if (_reader->readNextStartElement() && _reader->name() == "location")
+            feature->location = readLocation();
+        else
+            throw Exception(tr(
+                    "Keine Lokalisierung von einem Feature angegben."));
+        _dataset->featureList.append(feature);
+    }
+}
+
+ProteinDataSet::Location * UniprotXmlReader::readLocation()
+{
+    ProteinDataSet::Location * location = new ProteinDataSet::Location();
+    location->sequence = readAttribute("sequence").toString();
+    if (_reader->readNextStartElement() && _reader->name() == "begin")
+    {
+        location->begin = readPosition();
+        if (_reader->readNextStartElement() && _reader->name() == "end")
+            location->end = readPosition();
+    }
+    else if (_reader->name() == "position")
+    {
+        location->begin = readPosition();
+        location->end = 0;
+    }
+    else
+        throw new Exception(tr("Keine Position für Feature"));
+    return location;
+}
+
+ProteinDataSet::Position * UniprotXmlReader::readPosition()
+{
+
+    ProteinDataSet::Position * pos = new ProteinDataSet::Position();
+    pos->evidence = readAttribute("evidence").toString();
+    pos->pos = readAttribute("position",Int).toInt();
+    pos->status =readAttribute("status").toString();
+    return pos;
+}
+
+void UniprotXmlReader::readSequence()
+{
+    if (_reader->readNextStartElement() && _reader->name() == "protein")
+    {
+        _dataset->sequence.length = readAttribute("length", Int).toInt();
+        _dataset->sequence.mass = readAttribute("mass", Int).toInt();
+        _dataset->sequence.checksum = readAttribute("checksum").toString();
+        _dataset->sequence.modified = readAttribute("modified", Date).toDate();
+        _dataset->sequence.precursor
+                = readAttribute("precursor", Bool).toBool();
+        _dataset->sequence.version = readAttribute("version", Int).toInt();
+        _dataset->sequence.fragment = readAttribute("fragment").toString();
+        _dataset->sequence.sequence
+                = _reader->readElementText().simplified().remove(' ');
+    }
+    else
+        throw new Exception(tr("Keine Sequenz."));
 }
 
 ProteinDataSet::ProteinDataList * UniprotXmlReader::data()
 {
-  return _dataList;
+    return _dataList;
 }
+
+void UniprotXmlReader::readGenes()
+{
+    while (_reader->name() == "gene")
+    {
+        _reader->skipCurrentElement();
+        _reader->readNextStartElement();
+    }
+}
+void UniprotXmlReader::readOrganism()
+{
+    while (_reader->name() == "organism")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+void UniprotXmlReader::readOrganismHosts()
+{
+    while (_reader->name() == "organismHost")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+void UniprotXmlReader::readGeneLocations()
+{
+    while (_reader->name() == "geneLocation")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+void UniprotXmlReader::readReferences()
+{
+    while (_reader->name() == "reference")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+void UniprotXmlReader::readComments()
+{
+    while (_reader->name() == "comment")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+
+void UniprotXmlReader::readDbReferences()
+{
+    while (_reader->name() == "dbReference")
+        {
+            _reader->skipCurrentElement();
+            _reader->readNextStartElement();
+        }
+}
+void UniprotXmlReader::readProteinExistence()
+{
+if (_reader->name() == "proteinExistence")
+{
+    _reader->skipCurrentElement();
+    _reader->readNextStartElement();
+}
+}
+
+void UniprotXmlReader::readKeywords()
+{
+
+while (_reader->name() == "keyword")
+{
+    _reader->skipCurrentElement();
+    _reader->readNextStartElement();
+}
+}
+
+void UniprotXmlReader::readEvidences()
+{
+
+while (_reader->name() == "evidence")
+{
+    _reader->skipCurrentElement();
+    _reader->readNextStartElement();
+}
+}
+
 
 bool UniprotXmlReader::toBool(const QString & s)
 {
-  if (s.simplified().toLower() == "true" || s== "1" )
-    return true;
-  return false;
+    if (s.simplified().toLower() == "true" || s == "1")
+        return true;
+    return false;
 }
 }
