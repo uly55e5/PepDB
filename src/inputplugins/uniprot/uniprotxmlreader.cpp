@@ -137,7 +137,7 @@ namespace pepdb
         {
             readProtein();
             _reader->readNextStartElement();
-            qDebug() << _reader->name();
+
 
         }
         else
@@ -187,6 +187,7 @@ namespace pepdb
             _reader->readNextStartElement();
         }
 
+
         if (_reader->name() == "proteinExistence")
         {
             readProteinExistence();
@@ -201,20 +202,21 @@ namespace pepdb
             _reader->readNextStartElement();
         }
 
-        qDebug() << _reader->name();
+
         while (_reader->name() == "feature")
         {
             readFeature();
             _reader->readNextStartElement();
-            qDebug() << _reader->name();
+
         }
-        qDebug() << _reader->name();
+
 
         while (_reader->name() == "evidence")
         {
             readEvidence();
             _reader->readNextStartElement();
         }
+
         if (_reader->name() == "sequence")
         {
             readSequence();
@@ -272,7 +274,7 @@ namespace pepdb
     void UniprotXmlReader::readFeature()
     {
 
-        qDebug() <<  "Feature -Start" << _reader->name();
+
         ProteinDataSet::Feature * feature = new ProteinDataSet::Feature();
         feature->status = readAttribute("status").toString();
         feature->id = readAttribute("id").toString();
@@ -286,13 +288,13 @@ namespace pepdb
             feature->original = _reader->readElementText();
             _reader->readNextStartElement();
         }
-        qDebug() << _reader->name();
+
         while  (_reader->name() == "variation")
         {
             feature->variationList.append((_reader->readElementText()));
             _reader->readNextStartElement();
         }
-        qDebug() << _reader->name();
+
         if ( _reader->name() == "location")
         {
             feature->location = readLocation();
@@ -300,7 +302,7 @@ namespace pepdb
         }
         else
         {
-            qDebug() << _reader->name();
+
             throw new Exception(tr("Keine Lokalisierung von einem Feature angegeben."));
         }
         _reader->skipCurrentElement();
@@ -319,7 +321,7 @@ namespace pepdb
                 location.end = readPosition();
             else
             {
-                qDebug() << _reader->name();
+
                 throw new Exception(tr("Location begin ohne end"));
             }
         }
@@ -366,9 +368,16 @@ namespace pepdb
 
     void UniprotXmlReader::readGene()
     {
-
-        // TODO
-        _reader->skipCurrentElement();
+        ProteinDataSet::Gene * gene = new ProteinDataSet::Gene();
+        while ( _reader->readNextStartElement() && _reader->name() == "name")
+        {
+            ProteinDataSet::GeneName * name = new ProteinDataSet::GeneName();
+            name->evidence = readAttribute("evidence").toString();
+            name->type = readAttribute("type").toString();
+            name->name = _reader->readElementText();
+            gene->geneNameList.append(name);
+        }
+        _currentDataset->geneList.append(gene);
 
     }
     void UniprotXmlReader::readOrganism()
@@ -402,26 +411,47 @@ namespace pepdb
 
     void UniprotXmlReader::readDbReference()
     {
-        //TODO
-        _reader->skipCurrentElement();
+
+      ProteinDataSet::DbReference * ref = new ProteinDataSet::DbReference();
+      ref->evidence = readAttribute("evidence").toString();
+      ref->key = readAttribute("key").toString();
+      ref->id = readAttribute("id").toString();
+      ref->type = readAttribute("type").toString();
+      while(_reader->readNextStartElement() && _reader->name() == "property")
+      {
+          ProteinDataSet::Property * prop = new ProteinDataSet::Property();
+          prop->type =  readAttribute("type").toString();
+          prop->value = readAttribute("value").toString();
+          ref->propertyList.append(prop);
+          _reader->skipCurrentElement();
+      }
+      _currentDataset->dbReferenceList.append(ref);
     }
+
 
     void UniprotXmlReader::readProteinExistence()
     {
-        //TODO
+        _currentDataset->proteinExistence = readAttribute("type").toString();
         _reader->skipCurrentElement();
     }
 
     void UniprotXmlReader::readKeyword()
     {
-        //TODO
-        _reader->skipCurrentElement();
-
+       ProteinDataSet::Keyword * keyword = new ProteinDataSet::Keyword();
+       keyword->evidence = readAttribute("evidence").toString();
+       keyword->id = readAttribute("id").toString();
+       keyword->keyword = _reader->readElementText();
+       _currentDataset->keywordList.append(keyword);
     }
 
     void UniprotXmlReader::readEvidence()
     {
-        //TODO
+        ProteinDataSet::Evidence * evidence = new ProteinDataSet::Evidence();
+        evidence->attribute = readAttribute("attribute").toString();
+        evidence->category = readAttribute("category").toString();
+        evidence->date = readAttribute("date",Date).toDate();
+        evidence->key = readAttribute("key").toString();
+        evidence->type = readAttribute("type").toString();
         _reader->skipCurrentElement();
     }
 
