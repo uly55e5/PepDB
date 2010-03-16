@@ -10,4 +10,8 @@ find_package(Qt4 4.6.0  COMPONENTS  QtCore QtGui QtWebkit QtSql QtXml QtXmlPatte
 
 include(${QT_USE_FILE})
 
+SET( WORK_DIR ${CMAKE_SOURCE_DIR}/work )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${WORK_DIR} )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${WORK_DIR}/lib)
+
 add_subdirectory( src )

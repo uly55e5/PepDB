@@ -14,7 +14,7 @@ namespace pepdb
 
 class UniprotXmlReader: public QThread
 {
-Q_OBJECT
+    Q_OBJECT
 
     enum AttributeType
     {
@@ -34,39 +34,40 @@ signals:
 
 private:
     QVariant
-            readAttribute(const QString & attName, AttributeType type = String);
-    ProteinDataSet::EvidencedString * readEvidencedString();
-    ProteinDataSet::Location * readLocation();
-    ProteinDataSet::Position * readPosition();
+    readAttribute(const QString & attName, AttributeType type = String);
+
+    ProteinDataSet::EvidencedString readEvidencedString();
+    ProteinDataSet::Location readLocation();
+    ProteinDataSet::Position readPosition();
 
     void countEntries();
     void readEntries();
 
     void readEntry();
-    void readAccessions();
-    void readNames();
-    void readProtein();
-    void readProteinNames(const QString & scope = "protein");
+    void readAccession();
+    void readName();
+    void readProtein(const QString & scope = "protein");
     void readSequence();
-    void readFeatures();
-    void readGenes();
+    void readFeature();
+
+    void readGene();
     void readOrganism();
-    void readOrganismHosts();
-    void readGeneLocations();
-    void readReferences();
-    void readComments();
-    void readDbReferences();
+    void readOrganismHost();
+    void readGeneLocation();
+    void readReference();
+    void readComment();
+    void readDbReference();
     void readProteinExistence();
-    void readKeywords();
-    void readEvidences();
+    void readKeyword();
+    void readEvidence();
 
     bool toBool(const QString & s);
 
     QFile * _file;
     QXmlStreamReader * _reader;
-    ProteinDataSet * _dataset;
-    int _entryCount;
+    ProteinDataSet * _currentDataset;
     ProteinDataSet::ProteinDataList * _dataList;
+    int _entryCount;
 };
 
 }

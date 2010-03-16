@@ -66,8 +66,8 @@ public:
 
   struct Location
   {
-    Position * begin;
-    Position * end;
+    Position begin;
+    Position end;
     QString sequence;
   };
 
@@ -77,7 +77,7 @@ public:
   {
     QString original;
     QStringList variationList;
-    Location * location;
+    Location location;
     QString type;
     QString status;
     QString id;
@@ -336,7 +336,7 @@ public:
 
   struct ProteinName
   {
-    EvidencedString * fullName;
+    EvidencedString fullName;
     EvidencedStringList shortNameList;
     QString scope;
     QString type;
