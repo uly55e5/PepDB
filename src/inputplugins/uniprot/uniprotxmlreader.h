@@ -51,12 +51,14 @@ private:
     void readFeature();
 
     void readGene();
-    void readOrganism();
+    ProteinDataSet::Organism * readOrganism();
     void readOrganismHost();
     void readGeneLocation();
     void readReference();
+    ProteinDataSet::Citation readCitation();
+    ProteinDataSet::NameList readNameList();
     void readComment();
-    void readDbReference();
+    ProteinDataSet::DbReference * readDbReference();
     void readProteinExistence();
     void readKeyword();
     void readEvidence();

@@ -300,12 +300,13 @@ public:
 
   typedef QList<GeneLocation *> GeneLocationList;
 
-  struct OrganismNameList
+  struct OrganismName
   {
     QString name;
     QString type;
   };
 
+  typedef QList<OrganismName *> OrganismNameList;
 
   struct Organism
   {
