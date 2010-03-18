@@ -266,6 +266,7 @@ public:
     QString type;
     QString ref;
     QString evidence;
+    QString text;
   };
 
   typedef QList<Source *> SourceList;

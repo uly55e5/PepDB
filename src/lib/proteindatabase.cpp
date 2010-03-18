@@ -25,14 +25,17 @@ ProteinDatabase::ProteinDatabase(const QString & name, const QString & folder,
     QObject * parent) :
   QObject(parent)
 {
-  _fileName = folder + QDir::separator() + name + ".sqlite";
+  //_fileName = folder + QDir::separator() + name + ".sqlite";
   //_fileName=name;
   if (!open())
+  {
+    qDebug() << _database.lastError().text();
     qDebug() << "could not open Database";
+  }
   else
   {
     qDebug() << "Datbase opened succesfully";
-    createDatabase();
+    prepareStatements();
   }
 
 }
@@ -52,98 +55,76 @@ ProteinDatabase::~ProteinDatabase()
 
 bool ProteinDatabase::open()
 {
-  _database = QSqlDatabase::addDatabase("QSQLITE");
-  //_database=QSqlDatabase::addDatabase("QMYSQL");
-  _database.setDatabaseName(_fileName);
+  _database=QSqlDatabase::addDatabase("QMYSQL");
+  _database.setDatabaseName("pepdb");
   _database.setHostName("localhost");
   _database.setUserName("pepdb");
-  _database.setPassword("sirtuin");
+  _database.setPassword("pepdb");
   return _database.open();
 }
 
-bool ProteinDatabase::createDatabase()
+bool ProteinDatabase::prepareStatements()
 {
-  qDebug() << "creating Database...";
-  QFile sqlfile("/home/dave/Projekte/eclipse/PepDB/sql/createDatabase.sql");
+  qDebug() << "preparing statements...";
+  QFile sqlfile("sql/insertIntoPepDB.sql");
   sqlfile.open(QIODevice::ReadOnly);
   QTextStream stream(&sqlfile);
   while (!stream.atEnd())
   {
-    QSqlQuery query(stream.readLine());
-    qDebug() << query.lastQuery();
-    //query.next();
-    qDebug() << query.value(0);
-    qDebug() << "Fehler: " << query.lastError();
+    sendQuery(stream.readLine());
   }
   return true;
-  //return query.exec();
-
 }
 
 bool ProteinDatabase::addDataSet(ProteinDataSet * data)
 {
-  QSqlQuery query("PRAGMA synchronous=OFF");
-  query.exec(
-      QString(
-          "INSERT INTO uniprot ( dataset, created, modified, version ) VALUES ( \"%1\", \"%2\" , \"%3\" ,\"%4\");").arg(
-          data->uniprot.dataset).arg(data->uniprot.created.toString()).arg(data->uniprot.modified.toString()).arg(
-          data->uniprot.version));
-  int uniprotid = query.lastInsertId().toInt();
-  qDebug() << uniprotid;
-  query.exec(
-      QString(
-          "INSERT INTO sequences ( sequence , checksum , modified , precursor , fragment , length , mass , version , uniprotid) VALUES (\"%1\",\"%2\",\"%3\",\"%4\",\"%5\",\"%6\",\"%7\",\"%8\",\"%9\");") .arg(
-          data->sequence.sequence).arg(data->sequence.checksum).arg(
-          data->sequence.modified.toString("yyyyMMdd")).arg(
-          data->sequence.precursor).arg(data->sequence.fragment).arg(
-          data->sequence.length).arg(data->sequence.mass) .arg(
-          data->sequence.version).arg(uniprotid));
-  foreach(QString acc, data->uniprot.accessionList)
-  {
-    query.exec(QString("INSERT INTO accession ( database, acc, uniprotid) VALUES (\"%1\", \"%2\", \"%3\");").arg(acc).arg(uniprotid));
-  }
-  foreach(QString name, data->uniprot.nameList)
-  {
-    query.exec(QString("INSERT INTO datasetnames ( name, uniprotid) VALUES (\"%1\",\"%2\");").arg(name).arg(uniprotid));
-  }
-  foreach(ProteinDataSet::ProteinName * name,data->proteinNameList)
-  {
-    query.exec(QString("INSERT INTO proteinnames (nameType, scope, ref, uniprotid) VALUES (\"%1\", \"%2\", \"%3\", \"%4\");")
-        .arg(name->type).arg(name->scope).arg(name->ref).arg(uniprotid));
-
-    //int protnameid = query.lastInsertId().toInt();
-//    query.exec(QString("INSERT INTO evidencednames (name, evidence, status, protNameId,length) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\");")
-//        .arg(name->name.name).arg(name->fullName.evidence).arg(name->fullName.status).arg(protnameid).arg("full"));
-
-//    query.exec(QString("INSERT INTO evidencednames (name, evidence, status, protNameId,length) VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\");")
-//        .arg(name->shortName.name).arg(name->shortName.evidence).arg(name->shortName.status).arg(protnameid).arg("short"));
-
-  }
-  foreach(ProteinDataSet::Feature * feature,data->featureList)
-  {
-//    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.begin.pos).arg(feature->location.begin.status));
-    int beginid = query.lastInsertId().toInt();
-//    query.exec(QString("INSERT INTO positions (position,status) VALUES ( \"%1\",\"%2\");").arg(feature->location.end.pos).arg(feature->location.end.status));
-    int endid = query.lastInsertId().toInt();
-    query.exec(QString("INSERT INTO features (uniprotId , original ,  type , status , featureId , description , evidence , \"begin\", \"end\") VALUES (\"%1\", \"%2\", \"%3\", \"%4\", \"%5\",\"%6\", \"%7\", \"%8\", \"%9\");")
-        .arg(uniprotid).arg(feature->original).arg(feature->type).arg(feature->status).arg(feature->id).arg(feature->description).arg(feature->evidence).arg(beginid).arg(endid));
-    int featureid = query.lastInsertId().toInt();
-    foreach(QString var, feature->variationList)
+    bindVar("uniDataset",data->uniprot.dataset);
+    bindVar("uniCreated",data->uniprot.created.toString(Qt::ISODate));
+    bindVar("uniModified",data->uniprot.modified.toString(Qt::ISODate));
+    bindVar("uniVersion",QString().setNum(data->uniprot.version));
+    bindVar("protExist",data->proteinExistence);
+    int uniprotId = sendQuery("EXECUTE insert_uniprot USING @uniDataset, @uniCreated, @uniModified, @uniVersion, @protExist;");
+    bindVar("uniId",QString().setNum(uniprotId));
+    foreach(QString s, data->uniprot.accessionList)
     {
-      query.exec(QString("INSERT INTO variations (feature,variation) VALUES  ( \"%1\",\"%2\");").arg(featureid).arg(var));
-
+        bindVar("uniAcc",s);
+        sendQuery("EXECUTE insert_uniprotaccession USING @uniId, @uniAcc;");
+    }
+    foreach(QString s, data->uniprot.nameList)
+    {
+        bindVar("uniName",s);
+        sendQuery("EXECUTE insert_uniprotname USING @uniId, @uniName;");
     }
 
-  }
-  //qDebug() << query.lastQuery();
-  //qDebug() << "Fehler: " << query.lastError();
-  return true;
+
+}
+
+
+bool ProteinDatabase::bindVar(QString varname, QString value)
+{
+    return sendQuery(QString("SET @%1 = \"%2\";").arg(varname).arg(value));
+}
+
+
+
+
+int ProteinDatabase::sendQuery(QString q)
+{
+    QSqlQuery query(_database);
+    if (! query.exec(q))
+    {
+        qDebug() << query.lastQuery();
+        qDebug() << query.lastError().text();
+        return false;
+    }
+    else
+        return query.lastInsertId().toInt();
 }
 
 FeatureTableModel * ProteinDatabase::searchFeatures()
 {
-  QSqlQuery query("PRAGMA synchronous=OFF");
-  query.exec("PRAGMA cache_size=2000000");
+  QSqlQuery query(_database);
+  //query.exec("PRAGMA cache_size=2000000");
   query.exec(
       "SELECT  d.name AS \"Uniprot-ID\",  e.name AS \"Protein-Name\", p1.position as \"Start\", p2.position as \"Ende\",\"sequence\" AS  \"Sequenz\" FROM  features f INNER JOIN positions p1 ON p1.id=f.begin INNER JOIN positions p2 ON p2.id=f.end INNER JOIN  proteinNames p ON  p.uniprotid=f.uniprotid INNER JOIN evidencednames e ON e.protNameId=p.id INNER JOIN sequences s ON s.uniprotid = f.uniprotid  INNER JOIN datasetnames d ON d.uniprotid=f.uniprotid WHERE p.nameType=\"recommended\" AND p.scope=\"protein\" AND e.length=\"full\" AND f.description = \"N6-acetyllysine\";");
   QSqlRecord r = query.record();

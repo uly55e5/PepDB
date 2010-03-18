@@ -62,12 +62,14 @@ Job * Project::addFileToDatabase(const QString & fileName,
 
 void Project::addDataToDatabase()
 {
-  QObject * object = sender()->parent();
+  Job * job = qobject_cast<Job *> (sender());
+  QObject * object = job->parent();
   InputPluginInterface * plugin = qobject_cast<InputPluginInterface *> (
       object);
-  if (plugin)
+  if (plugin && job != 0)
   {
-    ProteinDataSet::ProteinDataList * data = plugin->data(0);
+
+    ProteinDataSet::ProteinDataList * data = plugin->data(job->id());
     foreach(ProteinDataSet * set, *data)
       {
         _database->addDataSet(set);

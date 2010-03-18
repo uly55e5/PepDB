@@ -168,7 +168,6 @@ void UniprotXmlReader::readEntry()
     {
         readGeneLocation();
         _reader->readNextStartElement();
-        qDebug() << _reader->name();
     }
 
     while (_reader->name() == "reference")
@@ -430,7 +429,7 @@ void UniprotXmlReader::readGeneLocation()
         status->name = _reader->readElementText();
         loc->nameList.append(status);
     }
-    qDebug() << "genlocation end: " << _reader->name();
+
     _currentDataset->geneLocationList.append(loc);
 }
 
@@ -441,20 +440,37 @@ void UniprotXmlReader::readReference()
     ref->key = readAttribute("key").toString();
     if (_reader->readNextStartElement() && _reader->name() == "citation")
     {
-
+        ref->citation = readCitation();
     }
     else
         throw new Exception(tr("Kein Zitat in Referenz"));
 
+
     while (_reader->readNextStartElement() && _reader->name() == "scope")
     {
-
+        ref->scopeList.append(_reader->readElementText());
     }
+
+    if ( _reader->name() == "source")
+    {
+        while (_reader->readNextStartElement())
+        {
+            ProteinDataSet::Source * source = new ProteinDataSet::Source();
+            source->type = _reader->name().toString();
+            source->ref = readAttribute("ref").toString();
+            source->evidence = readAttribute("evidence").toString();
+            source->text = _reader->readElementText();
+
+        }
+        _reader->readNextStartElement();
+    }
+
 
 }
 
 ProteinDataSet::Citation UniprotXmlReader::readCitation()
 {
+
     ProteinDataSet::Citation citation;
     citation.type = readAttribute("type").toString();
     citation.date = readAttribute("date").toString();
@@ -474,8 +490,7 @@ ProteinDataSet::Citation UniprotXmlReader::readCitation()
         citation.title = _reader->readElementText();
         _reader->readNextStartElement();
     }
-
-    if (_reader->name() == "editorlist")
+    if (_reader->name() == "editorList")
     {
         citation.editorList = readNameList();
         _reader->readNextStartElement();
@@ -509,6 +524,7 @@ ProteinDataSet::Citation UniprotXmlReader::readCitation()
 
     }
 
+
     return citation;
 }
 
@@ -523,6 +539,7 @@ ProteinDataSet::NameList UniprotXmlReader::readNameList()
         names.consortiumList.append(readAttribute("name").toString());
     else
         throw new Exception(tr("Weder Person noch Consortium in Namensliste"));
+    _reader->skipCurrentElement();
     }
     return names;
 }

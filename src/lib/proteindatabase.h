@@ -32,8 +32,10 @@ public:
     FeatureTableModel * searchFeatures();
     QString fileName();
     void setFileName(const QString & fileName);
+    int sendQuery(QString q);
 private:
-    bool createDatabase();
+    bool bindVar(QString varname, QString value);
+    bool prepareStatements();
     QString _fileName;
     QSqlDatabase _database;
 };
