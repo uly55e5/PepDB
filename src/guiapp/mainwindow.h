@@ -18,39 +18,40 @@ class MainWindow: public QMainWindow
 Q_OBJECT
 
 public:
-	/*!
-	 * \brief Constructor.
-	 *
-	 * @param parent The parent widget.
-	 */
-	MainWindow(QWidget *parent = 0);
+    /*!
+     * \brief Constructor.
+     *
+     * @param parent The parent widget.
+     */
+    MainWindow(QWidget *parent = 0);
 
-	/*!
-	 * \brief Destructor.
-	 */
-	~MainWindow();
+    /*!
+     * \brief Destructor.
+     */
+    ~MainWindow();
 
 public slots:
 
-	/*!
-	 * \brief Create a new Project.
-	 */
-	void newProject();
+    /*!
+     * \brief Create a new Project.
+     */
+    void newProject();
 
-	/*!
-	 * \brief Open a existing Project.
-	 */
-	void openProject();
+    /*!
+     * \brief Open a existing Project.
+     */
+    void openProject();
 
-	/*!
-	 * \brief Close Current Project.
-	 */
-	void closeProject();
+    /*!
+     * \brief Close Current Project.
+     */
+    void closeProject();
 
-	void featureSearch();
+    void featureSearch();
+    void batchSearch();
 private:
-	Ui::MainWindowClass ui; //!< The Qt designer form.
-	Project * _currentProject;
+    Ui::MainWindowClass ui; //!< The Qt designer form.
+    Project * _currentProject;
 };
 }
 

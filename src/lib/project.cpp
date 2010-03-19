@@ -70,9 +70,13 @@ void Project::addDataToDatabase()
   {
 
     ProteinDataSet::ProteinDataList * data = plugin->data(job->id());
+    int i = 0;
     foreach(ProteinDataSet * set, *data)
       {
         _database->addDataSet(set);
+        if ( i%100 == 0)
+            qDebug() << i;
+        i++;
       }
   }
 }
@@ -80,6 +84,11 @@ void Project::addDataToDatabase()
 FeatureTableModel * Project::searchFeatures()
 {
   return _database->searchFeatures();
+}
+
+void Project::batchSearch()
+{
+    _database->batchSearch();
 }
 
 void Project::writeProjectFile()

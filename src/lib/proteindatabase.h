@@ -33,9 +33,11 @@ public:
     QString fileName();
     void setFileName(const QString & fileName);
     int sendQuery(QString q);
+    void batchSearch();
 private:
     bool bindVar(QString varname, QString value);
     bool prepareStatements();
+    QString boolToString(bool b);
     QString _fileName;
     QSqlDatabase _database;
 };

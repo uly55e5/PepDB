@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui.actionOpenProject,SIGNAL(activated()),SLOT(openProject()));
 
     connect(ui.btnFeatureSeaurch,SIGNAL(clicked()),SLOT(featureSearch()));
+    connect(ui.btnSearchBatch,SIGNAL(clicked()),SLOT(batchSearch()));
 }
 
 MainWindow::~MainWindow()
@@ -48,25 +49,30 @@ void MainWindow::newProject()
 
 void MainWindow::openProject()
 {
-	QSettings settings;
-	QString path = settings.value("paths/projectroot",QDir::homePath()).toString();
-	QString fileName = QFileDialog::getOpenFileName(this,"Open Project",path,"Projects (*.project)");
-	_currentProject = new Project(fileName,this);
+    QSettings settings;
+    QString path = settings.value("paths/projectroot",QDir::homePath()).toString();
+    QString fileName = QFileDialog::getOpenFileName(this,"Open Project",path,"Projects (*.project)");
+    _currentProject = new Project(fileName,this);
 
 }
 
 void MainWindow::closeProject()
 {
-	delete _currentProject;
+    delete _currentProject;
 
 }
 
 void MainWindow::featureSearch()
 {
-	ResultTable * result = new ResultTable();
-	result->setModel(_currentProject->searchFeatures());
-	ui.centralLayout->addWidget(result);
+    ResultTable * result = new ResultTable();
+    result->setModel(_currentProject->searchFeatures());
+    ui.centralLayout->addWidget(result);
 
+}
+
+void MainWindow::batchSearch()
+{
+    _currentProject->batchSearch();
 }
 
 }

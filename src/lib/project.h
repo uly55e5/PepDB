@@ -59,8 +59,9 @@ public:
      */
     Job * addFileToDatabase(const QString & fileName, const QString & fileType);
 public slots:
-	void addDataToDatabase();
+    void addDataToDatabase();
     FeatureTableModel * searchFeatures(); //TODO
+    void batchSearch();
 private:
     void writeProjectFile();
     void readProjectFile(const QString & projectFile);
