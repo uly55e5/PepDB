@@ -265,10 +265,12 @@ QFile file("testdata/test.csv");
 file.open(QIODevice::ReadOnly);
 QTextStream stream(&file);
 int i=1;
+QFile data("out2");
+data.open(QFile::WriteOnly | QFile::Truncate);
+QTextStream outStream(&data);
 while(!stream.atEnd())
 {
-    QFile data("out2");
-    QTextStream outStream(&data);
+
     Result result;
     QString line = stream.readLine();
     QStringList list = line.split('|');
