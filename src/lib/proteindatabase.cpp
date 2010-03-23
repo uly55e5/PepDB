@@ -344,7 +344,7 @@ while(!stream.atEnd())
                         result.seqList.append(out);
 
                         outStream << result.count << "|"  << result.name << "|"
-                                << result.originalSeq << "|" << result.uni << "|"<< out;
+                                << result.originalSeq << "|" << result.uni << "|"<< out << "\n";
                         qDebug() << result.count << "|"  << result.name << "|"
                                << result.originalSeq << "|" << result.uni << "|"<< out;
                     }
@@ -356,7 +356,7 @@ while(!stream.atEnd())
         if(result.seqList.size() == 0 )
         {
             outStream << result.count << "|"  << result.name << "|"
-                                            << result.originalSeq;
+                                            << result.originalSeq << "\n";
             qDebug() << result.count << "|"  << result.name << "|"
                                            << result.originalSeq;
         }
