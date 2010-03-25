@@ -3,7 +3,8 @@ set( PEPDB_HDRS
      mainwindow.h
      newprojectdialog.h
      resulttable.h
-     settingsdialog.h )
+     settingsdialog.h
+     searchwidget.h )
 
 set( PEPDB_SRCS
      jobstatuswidget.cpp
@@ -11,14 +12,16 @@ set( PEPDB_SRCS
      mainwindow.cpp
      newprojectdialog.cpp
      resulttable.cpp
-     settingsdialog.cpp )
+     settingsdialog.cpp
+     searchwidget.cpp )
 
 set( PEPDB_UIS
      forms/jobstatuswidget.ui
      forms/mainwindow.ui
      forms/newprojectdialog.ui
      forms/resulttable.ui
-     forms/settingsdialog.ui )
+     forms/settingsdialog.ui
+     forms/searchwidget.ui )
 
 qt4_wrap_cpp( PEPDB_MOC_SRCS ${PEPDB_HDRS} )
 

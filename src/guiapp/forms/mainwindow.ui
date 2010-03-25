@@ -54,6 +54,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QToolButton" name="btnSearch">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Search</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -143,13 +156,22 @@
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
-   <widget class="QMenu" name="menuEinstellungen">
+   <widget class="QMenu" name="menuSettings">
     <property name="title">
-     <string>Einstellungen</string>
+     <string>Settings</string>
     </property>
+    <addaction name="actionSettings"/>
+    <addaction name="actionProject_settings"/>
+   </widget>
+   <widget class="QMenu" name="menuDatabase">
+    <property name="title">
+     <string>&amp;Database</string>
+    </property>
+    <addaction name="actionNewDatabase"/>
    </widget>
    <addaction name="menu_File"/>
-   <addaction name="menuEinstellungen"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuDatabase"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
@@ -175,6 +197,21 @@
   <action name="actionRecent_Projects">
    <property name="text">
     <string>Recent Projects</string>
+   </property>
+  </action>
+  <action name="actionNewDatabase">
+   <property name="text">
+    <string>New Database</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="text">
+    <string>Global &amp;settings...</string>
+   </property>
+  </action>
+  <action name="actionProject_settings">
+   <property name="text">
+    <string>Project settings...</string>
    </property>
   </action>
  </widget>

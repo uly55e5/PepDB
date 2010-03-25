@@ -11,6 +11,7 @@
 #include <QObject>
 
 #include <QSqlDatabase>
+#include <QBitArray>
 
 
 #include "proteindataset.h"
@@ -40,6 +41,15 @@ private:
     QString boolToString(bool b);
     QString _fileName;
     QSqlDatabase _database;
+    QString sequenceAroundPosition(int pos, QString seq, int flank);
+
+    struct Result {
+        QString uniprot;
+        QString name;
+        int pos;
+        QString sequence;
+        QBitArray mods;
+    };
 };
 
 }

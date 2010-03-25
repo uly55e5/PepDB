@@ -13,6 +13,7 @@
 #include <QSqlError>
 #include <QSqlResult>
 #include <QSqlRecord>
+#include <QBitArray>
 
 #include "featuretablemodel.h"
 
@@ -247,7 +248,104 @@ return model;
 
 void ProteinDatabase::batchSearch()
 {
-struct Result
+    QMap<QString,Result> resultMap;
+
+   QStringList typeList;
+   QSqlQuery query("select description from features where features.type='modified residue' AND DESCRIPTION LIKE '%lysine%' group by description");
+   if (query.size()>0)
+   {
+       while(query.next())
+       {
+           QString type = query.value(0).toString().split(';').first();
+
+           if(!typeList.contains(type))
+           {
+               typeList.append(type);
+               qDebug() << type;
+           }
+
+       }
+   }
+   qDebug() << typeList.size();
+   int resultMatrix[typeList.size()][typeList.size()];
+   for(int i=0; i<typeList.size(); i++)
+       for(int j=0; j<typeList.size(); j++)
+           resultMatrix[i][j] = 0;
+
+   if(query.exec("SELECT u.name, e.name, f.description, pos.position, s.sequence from features f INNER JOIN uniprotnames u ON u.uniprotid = f.uniprotid INNER JOIN locations l on f.locationid=l.locationid INNER JOIN positions pos ON pos.positionid=l.beginid INNER JOIN proteinNames p ON p.uniprotid=f.uniprotid INNER JOIN evidencedstrings e ON e.evidencedstringid=p.fullNameid INNER JOIN sequences s ON s.uniprotid=f.uniprotid WHERE f.type='modified residue' AND f.description LIKE '%lysine%' AND p.scope='protein' AND p.type='recommendedName';"))
+   {
+       qDebug() << query.size();
+       while (query.next())
+       {
+           QString name=query.value(0).toString() + "-" + query.value(3).toString();
+           QString type = query.value(2).toString().split(';').first();
+           if(!resultMap.contains(name))
+           {
+               Result result;
+               result.name=query.value(1).toString();
+               result.pos=query.value(3).toInt();
+               result.uniprot=query.value(0).toString();
+               result.mods.resize(typeList.size());
+               result.mods.setBit(typeList.indexOf(type));
+               result.sequence =sequenceAroundPosition(query.value(3).toInt(),query.value(4).toString(),6);
+               resultMap.insert(name,result);
+           }
+           else
+           {
+                    resultMap[name].mods.setBit(typeList.indexOf(type));
+           }
+           qDebug() << resultMap.value(name).sequence << resultMap.value(name).mods;
+       }
+   }
+   QFile data("lysmods");
+   data.open(QFile::WriteOnly | QFile::Truncate);
+   QTextStream outStream(&data);
+   QFile data2("lysmodsmatrix");
+   data2.open(QFile::WriteOnly | QFile::Truncate);
+   QTextStream outStream2(&data2);
+   outStream << "Uniprot-Name;" << "Protein-Name;" << "Position;" << "Sequence;";
+   outStream2 << ";";
+   foreach(QString type, typeList)
+   {
+       outStream << type << ";";
+       outStream2 << type <<";";
+   }
+   outStream << "\n";
+   outStream2 << "\n";
+
+   foreach(Result result, resultMap.values())
+   {
+        outStream << result.uniprot << ";" << result.name << ";" << result.pos << ";" << result.sequence << ";";
+        for(int i=0; i<result.mods.size(); i++)
+        {
+            if (result.mods.testBit(i))
+            {
+                outStream << " + ;";
+                for(int j=0; j<result.mods.size(); j++)
+                {
+                    if (result.mods.testBit(j))
+                        resultMatrix[i][j] += 1;
+                }
+
+            }
+            else
+                outStream << " - ;";
+        }
+        outStream << "\n";
+   }
+    for(int i=0; i<typeList.size(); i++)
+   {
+        outStream2 << typeList[i] << ";";
+        for(int j=0; j<typeList.size(); j++)
+        {
+            outStream2 << resultMatrix[i][j] << ";";
+        }
+        outStream2 << "\n";
+    }
+    qDebug() << "Ende";
+}
+
+/*struct Result
 {
     int count;
     QList<int> posList;
@@ -366,7 +464,7 @@ while(!stream.atEnd())
     }
 }
 
-}
+}*/
 
 QString ProteinDatabase::fileName()
 {
@@ -389,6 +487,19 @@ if (b)
 return "1";
 else
 return "0";
+}
+
+QString ProteinDatabase::sequenceAroundPosition(int pos, QString seq, int flank)
+{
+    int start = pos - flank-1 < 0 ? 0 : pos - flank-1;
+    int length = pos + flank < seq.length() ? pos + flank -start
+    : seq.length() - start;
+    QString out = seq.mid(start, length);
+    if (start == 0)
+    out = out.rightJustified(2*flank+1, '.');
+    else
+    out = out.leftJustified(2*flank+1, '.');
+    return out;
 }
 
 }

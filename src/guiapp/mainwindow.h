@@ -49,6 +49,7 @@ public slots:
 
     void featureSearch();
     void batchSearch();
+    void newSearch();
 private:
     Ui::MainWindowClass ui; //!< The Qt designer form.
     Project * _currentProject;

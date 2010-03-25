@@ -6,6 +6,7 @@
 #include "jobstatuswidget.h"
 #include "newprojectdialog.h"
 #include "resulttable.h"
+#include "searchwidget.h"
 
 #include "lib/job.h"
 #include "lib/project.h"
@@ -25,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui.btnFeatureSeaurch,SIGNAL(clicked()),SLOT(featureSearch()));
     connect(ui.btnSearchBatch,SIGNAL(clicked()),SLOT(batchSearch()));
+    connect(ui.btnSearch,SIGNAL(clicked()),SLOT(newSearch()));
 }
 
 MainWindow::~MainWindow()
@@ -73,6 +75,13 @@ void MainWindow::featureSearch()
 void MainWindow::batchSearch()
 {
     _currentProject->batchSearch();
+}
+
+void MainWindow::newSearch()
+{
+    SearchWidget * sw = new SearchWidget(this);
+    ui.centralLayout->addWidget(sw);
+    sw->show();
 }
 
 }
