@@ -30,7 +30,7 @@ QList<QObject *> PluginLoader::findPlugins(QString pluginDir)
     if (pluginDir.isEmpty()) // read standard path
     {
         QSettings settings;
-        pluginDir = settings.value("general/pluginPath",QCoreApplication::applicationDirPath() + QDir::separator() + "plugins" ).toString();
+        pluginDir = settings.value("paths/pluginpath",QCoreApplication::applicationDirPath() + QDir::separator() + "plugins" ).toString();
     }
     qDebug() << pluginDir;
     QList<QObject *> plugins;
@@ -53,7 +53,7 @@ QList<InputPluginInterface *> PluginLoader::inputPlugins(
 {
     QList<InputPluginInterface *> inputList;
     QSettings settings;
-    QString path = settings.value("general/pluginPath",QCoreApplication::applicationDirPath() + QDir::separator() + "plugins").toString();
+    QString path = settings.value("paths/pluginpath",QCoreApplication::applicationDirPath() + QDir::separator() + "plugins").toString();
     QList<QObject *> plugins = findPlugins(path);
     if (plugins.size() > 0)
     {

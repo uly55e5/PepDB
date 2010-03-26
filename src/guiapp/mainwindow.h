@@ -47,6 +47,8 @@ public slots:
      */
     void closeProject();
 
+    void settingsDialog();
+    void applySettings();
     void featureSearch();
     void batchSearch();
     void newSearch();

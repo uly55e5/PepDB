@@ -40,6 +40,19 @@
        <widget class="QComboBox" name="comboBox"/>
       </item>
       <item>
+       <widget class="QToolButton" name="btnSearch">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Search</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnFeatureSeaurch">
         <property name="text">
          <string>Search Feature</string>
@@ -50,19 +63,6 @@
        <widget class="QPushButton" name="btnSearchBatch">
         <property name="text">
          <string>Search Batch</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="btnSearch">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Search</string>
         </property>
        </widget>
       </item>
@@ -168,40 +168,66 @@
      <string>&amp;Database</string>
     </property>
     <addaction name="actionNewDatabase"/>
+    <addaction name="actionAdd_to_Database"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_PepDB"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menuSettings"/>
    <addaction name="menuDatabase"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
    <property name="text">
     <string>E&amp;xit</string>
    </property>
+   <property name="toolTip">
+    <string>Close and exit PepDB</string>
+   </property>
   </action>
   <action name="actionNewProject">
    <property name="text">
     <string>&amp;New Project...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Project</string>
    </property>
   </action>
   <action name="actionOpenProject">
    <property name="text">
     <string>&amp;Open Project...</string>
    </property>
+   <property name="toolTip">
+    <string>Open an existing Project.</string>
+   </property>
   </action>
   <action name="actionCloseProject">
    <property name="text">
     <string>&amp;Close Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the current Project</string>
    </property>
   </action>
   <action name="actionRecent_Projects">
    <property name="text">
     <string>Recent Projects</string>
    </property>
+   <property name="toolTip">
+    <string>Recently used Projects</string>
+   </property>
   </action>
   <action name="actionNewDatabase">
    <property name="text">
-    <string>New Database</string>
+    <string>New Database...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new database from a file.</string>
    </property>
   </action>
   <action name="actionSettings">
@@ -212,6 +238,19 @@
   <action name="actionProject_settings">
    <property name="text">
     <string>Project settings...</string>
+   </property>
+  </action>
+  <action name="actionAdd_to_Database">
+   <property name="text">
+    <string>Add to Database...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a File to the Database.</string>
+   </property>
+  </action>
+  <action name="actionAbout_PepDB">
+   <property name="text">
+    <string>About PepDB</string>
    </property>
   </action>
  </widget>

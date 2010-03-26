@@ -14,6 +14,8 @@ public:
 
 private:
     Ui::SettingsDialogClass ui;
+    void readSettings();
+    void writeSettings();
 };
 
 #endif // SETTINGSDIALOG_H

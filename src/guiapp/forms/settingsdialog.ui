@@ -13,32 +13,303 @@
   <property name="windowTitle">
    <string>SettingsDialog</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QListWidget" name="listWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>1</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="mainLayout">
+     <item>
+      <widget class="QListWidget" name="listSettings">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Database</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Paths</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="stackedPages">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>4</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="currentIndex">
+        <number>1</number>
+       </property>
+       <widget class="QWidget" name="pageDatabase">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="lblDbType">
+           <property name="text">
+            <string>Database type</string>
+           </property>
+           <property name="buddy">
+            <cstring>boxDatabase</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="boxDatabase">
+           <item>
+            <property name="text">
+             <string>MySql</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Sqlite</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblDbName">
+           <property name="text">
+            <string>Database name</string>
+           </property>
+           <property name="buddy">
+            <cstring>editDbName</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editDbName"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblDbHost">
+           <property name="text">
+            <string>Host name</string>
+           </property>
+           <property name="buddy">
+            <cstring>editDbHost</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editDbHost"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblDbUser">
+           <property name="text">
+            <string>User</string>
+           </property>
+           <property name="buddy">
+            <cstring>editDbUser</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editDbUser"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblDbPassword">
+           <property name="text">
+            <string>Password</string>
+           </property>
+           <property name="buddy">
+            <cstring>editDbPassword</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="editDbPassword"/>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="boxPassword">
+           <property name="text">
+            <string>Store Password</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="spacerDb">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="pagePaths">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="lblProjectPaths">
+           <property name="text">
+            <string>Default project path</string>
+           </property>
+           <property name="buddy">
+            <cstring>editProjectRoot</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="layoutProjectRoot">
+           <item>
+            <widget class="QLineEdit" name="editProjectRoot"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnBrowseProjectRoot">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QLabel" name="lblPluginPath">
+           <property name="text">
+            <string>Plugin path</string>
+           </property>
+           <property name="buddy">
+            <cstring>editPluginPath</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="layoutPluginPath">
+           <item>
+            <widget class="QLineEdit" name="editPluginPath"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnBrowsePluginPath">
+             <property name="text">
+              <string>Browse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="spacerPaths">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
-    <widget class="QStackedWidget" name="stackedWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>4</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QDialogButtonBox" name="boxStdButtons">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
-     <widget class="QWidget" name="page"/>
-     <widget class="QWidget" name="page_2"/>
     </widget>
    </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>listSettings</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>stackedPages</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>56</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>485</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxStdButtons</sender>
+   <signal>accepted()</signal>
+   <receiver>SettingsDialogClass</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>620</x>
+     <y>436</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>664</x>
+     <y>384</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxStdButtons</sender>
+   <signal>rejected()</signal>
+   <receiver>SettingsDialogClass</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>518</x>
+     <y>434</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>424</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxPassword</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>editDbPassword</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>310</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>203</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>boxPassword</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lblDbPassword</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>238</x>
+     <y>313</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

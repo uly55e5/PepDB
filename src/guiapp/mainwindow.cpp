@@ -7,6 +7,7 @@
 #include "newprojectdialog.h"
 #include "resulttable.h"
 #include "searchwidget.h"
+#include "settingsdialog.h"
 
 #include "lib/job.h"
 #include "lib/project.h"
@@ -23,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui.actionNewProject,SIGNAL(activated()),SLOT(newProject()));
     connect(ui.actionCloseProject,SIGNAL(activated()),SLOT(closeProject()));
     connect(ui.actionOpenProject,SIGNAL(activated()),SLOT(openProject()));
+    connect(ui.actionSettings,SIGNAL(activated()),SLOT(settingsDialog()));
 
     connect(ui.btnFeatureSeaurch,SIGNAL(clicked()),SLOT(featureSearch()));
     connect(ui.btnSearchBatch,SIGNAL(clicked()),SLOT(batchSearch()));
@@ -82,6 +84,20 @@ void MainWindow::newSearch()
     SearchWidget * sw = new SearchWidget(this);
     ui.centralLayout->addWidget(sw);
     sw->show();
+}
+
+void MainWindow::settingsDialog()
+{
+    SettingsDialog sd(this);
+    if(sd.exec() == QDialog::Accepted)
+    {
+        applySettings();
+    }
+}
+
+void MainWindow::applySettings()
+{
+
 }
 
 }
